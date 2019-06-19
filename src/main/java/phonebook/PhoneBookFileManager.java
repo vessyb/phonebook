@@ -1,51 +1,51 @@
 package phonebook;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class PhoneBookFileManager {
 
-    private static String getFileNameWithExtension(String fileName){
-        if(fileName != null && !fileName.trim().isEmpty()){
-            fileName = fileName.replaceAll("[^A-Za-z0-9]", "");
-            return fileName.contains(".txt") ? fileName : fileName + ".txt";
-        }else{
-            return fileName;
-        }
-    }
-
     static boolean save(PhoneBook phoneBook) {
-        if(phoneBook != null){
+        if (phoneBook != null) {
             String fileName = phoneBook.getFileName();
-            String fileNameAndExtension = getFileNameWithExtension(fileName);
-
-            try(final ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileNameAndExtension))){
-                List<Contact> serializableList = new LinkedList<>(phoneBook.getContacts());
-                objectOutputStream.writeObject(serializableList);
-                return true;
+            try (PrintWriter printWriter = new PrintWriter(new FileWriter(fileName))) {
+                phoneBook.getContacts()
+                        .stream()
+                        .map(contact -> contact.getName()
+                                + ", "
+                                + contact.getNumber())
+                        .forEach(printWriter::println   );
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return true;
         }
         return false;
     }
 
-    static PhoneBook load(String fileName){
-        if(fileName != null && !fileName.trim().isEmpty()){
-            String filneNameWithExtension = getFileNameWithExtension(fileName);
-
-            try(final ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(filneNameWithExtension))) {
-                Collection<Contact> deserializedContacts = (Collection<Contact>) objectInputStream.readObject();
-                PhoneBook phoneBook = new PhoneBook(fileName);
-                phoneBook.addFromFile(deserializedContacts);
-                return phoneBook;
-            } catch (IOException | ClassNotFoundException e) {
+    static PhoneBook load(String fileName) {
+        if (fileName != null && !fileName.trim().isEmpty()) {
+            PhoneBook phoneBook = new PhoneBook(fileName);
+            List<Contact> contacts = new ArrayList<>();
+            try {
+                List<String> lines = Files.readAllLines(Paths.get(fileName));
+                contacts = lines.stream()
+                        .map(line -> line.trim().replaceAll("\n+", "").split(",\\s+"))
+                        .map(split -> new Contact(split[0], split[1]))
+                        .collect(Collectors.toList());
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+            phoneBook.addFromFile(contacts);
+            return phoneBook;
         }
         return null;
     }
-
 }
+

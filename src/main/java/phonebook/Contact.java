@@ -10,7 +10,7 @@ public class Contact {
         return name;
     }
 
-    private String getNumber() {
+    String getNumber() {
         return number;
     }
 
@@ -24,16 +24,16 @@ public class Contact {
         this.numberOfOutgoingCalls = 0;
     }
 
-    public void makeACall(){
+    void makeACall() {
         numberOfOutgoingCalls++;
     }
 
-    Integer getNumberOfOutgoingCalls(){
+    Integer getNumberOfOutgoingCalls() {
         return numberOfOutgoingCalls;
     }
 
     @Override
     public String toString() {
-        return this.getName() + "\n phone number: " + this.getNumber();
+        return this.getName() + " " + this.getNumber();
     }
 }

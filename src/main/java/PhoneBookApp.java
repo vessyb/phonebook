@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class PhoneBookApp {
 
-    private static String phoneBookFileName = "default";
     private static PhoneBook phoneBook;
+    private static String fileName;
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -18,29 +18,30 @@ public class PhoneBookApp {
     }
 
     private static void loadPhoneBook() {
-        System.out.println("Choose a file to load your phonebook from: ");
+        System.out.println("Enter the full path to the file from which you want to load your phone book. ");
         if (scanner.hasNextLine()) {
-            phoneBookFileName = scanner.nextLine();
+            fileName = scanner.nextLine();
         }
-        phoneBook = PhoneBook.loadContactsFromDisk(phoneBookFileName);
+        phoneBook = PhoneBook.loadContactsFromTextFile(fileName);
         if (phoneBook != null) {
-            System.out.println("You loaded your contacts from " + phoneBookFileName);
             phoneBook.displayContacts();
         } else {
-            phoneBook = new PhoneBook(phoneBookFileName);
-            System.out.println("Created a new phonebook " + phoneBookFileName);
+            phoneBook = new PhoneBook(fileName);
+            System.out.println("You created a new phonebook at " + fileName);
         }
-
     }
 
     private static void showMenu() {
-        System.out.println("Menu: " +
-                "Press 1 to view contacts " +
-                "Press 2 to add a contact " +
-                "Press 3 to delete a contact " +
-                "Press 4 to save your contacts " +
-                "Press 5 to view top 5 contacts with most outgoing calls" +
-                "Press 6 to quit ");
+        System.out.println("Menu:\n " +
+                "Press 1 to view contacts\n " +
+                "Press 2 to add a contact\n " +
+                "Press 3 to delete a contact\n " +
+                "Press 4 to save your contacts\n " +
+                "Press 5 to view top 5 contacts with most outgoing calls\n " +
+                "Press 6 to view a contact's phone number\n " +
+                "Press 7 to make a call\n " +
+                "Press 8 to quit\n " +
+                "If you quit without saving your newly added contacts the changes won't be saved to the file. ");
 
         handleUserMenuSelection();
     }
@@ -91,7 +92,7 @@ public class PhoneBookApp {
                     }
                     break;
                 case "4":
-                    if (phoneBook.saveContactsToDisk()) {
+                    if (phoneBook.saveContactsToTextFile()) {
                         System.out.println("Saved changes.");
                     } else {
                         System.out.println("Failed to save changes.");
@@ -101,6 +102,22 @@ public class PhoneBookApp {
                     phoneBook.displayContactsWithMostOutgoingCalls();
                     break;
                 case "6":
+                    System.out.println("Enter the name of the contact. ");
+                    if (scanner.hasNextLine()) {
+                        name = scanner.nextLine();
+                        phoneBook.accessAPhoneNumber(name);
+                    }
+                    break;
+                case "7":
+                    System.out.println("Who do you want to call? ");
+                    if (scanner.hasNextLine()) {
+                        name = scanner.nextLine();
+                        phoneBook.makeACall(name);
+                    } else {
+                        System.out.println("There is no such contact. ");
+                    }
+                    break;
+                case "8":
                     System.out.println("Goodbye!");
                     System.exit(100);
                 default:
